@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+
+### METHODE is_numeric POUR CHECKER LA LIGNE ECRITE DANS STDIN ###
+
+class String
+  def is_numeric?
+    Float(self) != nil rescue false
+  end
+end
+
+### APPEL DE LA METHODE Time POUR RECUPERER LA DATE ###
+
+time = Time.new
+#######################################################
+
+### OUVERTURE DU FICHIER ET DU BACKUP_FILE ###
+
+abort ('Usage: ./CSV fichier.csv\n') if ARGV.empty? # Gestion d'erreur : arguments vide
+file_name = ARGV[0].split('.')
+abort ("Erreur: Le fichier #{ARGV[0]} doit avoir l'extension .csv\n") if file_name[1] != 'csv' # Gestion d'erreur : Mauvaise extension
+begin
+  file_cvs = File.open("#{ARGV[0]}", 'r')
+  backup = File.open("#{file_name[0]}_backup_#{time.year}#{time.month}#{time.day}.csv", 'w+')
+rescue
+  abort("Erreur: le fichier #{ARGV[0]} n'existe pas ou ne peut être ouvert\n") # Gestion d'erreur: si le fichier n'existe pas
+end
+
+###############################################
+
+### LECTURE DU FICHIER ET ECRITURE DANS LE BACKUP_FILE ET FERMETURE DU FI###
+
+file_cvs = file_cvs.read
+backup.write "#{file_cvs}"
+
+##########################################################
+
+### CREATION DU FILE_EXTRACTED ET DU FICHIER TMP###
+
+file_extracted = File.open("#{file_name[0]}_extracted.csv", 'w+')
+#file_tmp = File.open('tmp', 'w+')
+tmp = file_cvs
+
+##################################
+
+### AFFICHAGE DU CONTENU DU FICHIER AVEC INDEX EN DEBUT DE LIGNE POUR LE GETS.CHOMP ###
+
+i = 1
+file_cvs.each_line do |entry|
+    puts "#{i} | #{entry.chomp}"
+    i += 1
+end
+
+###################################################################################
+
+### PROMPT QUI ATTENDS UNE CHAINE "fin" AVANT DE QUITTER ###
+
+puts 'Veuillez entrez le numéro des lignes à extraire :'
+puts 'Quands vous aurez terminez, entrez le mot "fin"'
+array = []
+while 1
+  STDOUT.write '> ' # Affichage du prompt
+  str = STDIN.gets.chomp # Lecture sur l'entrée standard et suppression des \n et \t
+  if str.is_numeric? # La chaine est elle formé uniquement de chiffre?
+    i = 1
+    bool = false
+    file_cvs.each_line do |line| # Parcours des lignes
+      if str.to_i == i
+        array << i # Remplissage d'un array pour la dernière partie du programme
+        bool = true # Nombre validé
+        file_extracted.write("#{line.chomp}\n") # Ecriture dans le fichier extracted
+      end
+      i += 1
+    end
+    puts 'La ligne que vous avez entrez n\'existe pas' unless bool # Gestion d'erreur: si le nombre n'est pas validé
+  else
+    puts 'Veuillez entrez un chiffre / un nombre'
+  end
+  if str.upcase == 'FIN'
+    i = 1
+    file_cvs = File.open("#{ARGV[0]}", 'w+')
+    tmp.each_line do |line| # Parcours de la chaine temporaire
+      file_cvs.write "#{line.chomp}\n" unless array.include?(i.to_i)
+      i += 1
+    end
+    exit (0)
+  end # Quitte le programme
+end
+
+############################################################

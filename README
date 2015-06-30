@@ -1,0 +1,13 @@
+#############################################################
+
+Voici mon rendu pour le script que vous m'aviez demande,
+Vous trouverez dans ce README la liste des erreurs gerees:
+- Mauvaise extension
+- Fichier inexistant
+- Dans le prompt : Chaine de caracteres non numerique
+       	  	   Nombre entre non existant dans le fichier
+- Affichage de l'usage si les arguments ne sont pas presents.
+
+Projet realise en 1h30 environ.
+
+#############################################################
